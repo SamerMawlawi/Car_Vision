@@ -182,6 +182,10 @@ def report_to_json(report, img_area: int, annotated_url: str, input_url: str) ->
 def index():
     return send_file(ROOT / "index.html")
 
+@app.route("/index_en.html")
+def index_en():
+    return send_file(ROOT / "index_en.html")
+
 
 @app.route("/pages/<path:page>")
 def pages(page: str):
