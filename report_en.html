@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html class="light" dir="ltr" lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Car Vision – Damage Report</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#000000", "secondary": "#5a5f66",
+            "surface": "#f9f9fb", "surface-container-low": "#f3f3f5",
+            "surface-container-lowest": "#ffffff", "surface-container-highest": "#e2e2e4",
+            "on-surface-variant": "#474747", "outline-variant": "#c6c6c6",
+            "error": "#ba1a1a",
+          },
+          fontFamily: {
+            headline: ["Space Grotesk", "Inter"],
+            body: ["Inter", "Space Grotesk"],
+          },
+        },
+      },
+    }
+  </script>
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    .primary-gradient { background: linear-gradient(135deg, #000 0%, #3b3b3b 100%); }
+
+    /* Damage type colour dots */
+    .dot-dent          { background: #ff6432; }
+    .dot-scratch       { background: #32c8ff; }
+    .dot-crack         { background: #50ff50; }
+    .dot-glass-shatter { background: #c850ff; }
+    .dot-lamp-broken   { background: #ffff32; border: 1px solid #ccc; }
+    .dot-tire-flat     { background: #ff3264; }
+
+    @media print {
+      nav, .no-print { display: none !important; }
+      body { background: white; }
+    }
+  </style>
+</head>
+<body class="bg-surface text-on-background overflow-x-hidden">
+
+  <!-- Nav -->
+  <nav class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md shadow-sm no-print">
+    <div class="flex justify-between items-center px-6 md:px-12 py-4 max-w-[1920px] mx-auto">
+      <a href="/" class="text-xl font-bold tracking-tighter text-black font-headline hover:opacity-80 transition-opacity">
+        Car Vision
+      </a>
+      <div class="hidden md:flex items-center space-x-8 font-headline tracking-tight">
+        <a class="text-stone-500 hover:text-black transition-colors" href="/">Home</a>
+        <a class="text-stone-500 hover:text-black transition-colors" href="/pages/assessment_en.html">New Assessment</a>
+      </div>
+      <a href="/pages/report_ar.html"
+         class="flex items-center gap-2 px-4 py-2 border border-stone-200 rounded-md text-sm font-medium hover:bg-stone-50 transition-colors">
+        <span class="material-symbols-outlined text-lg">language</span>
+        <span class="font-headline">AR</span>
+      </a>
+    </div>
+    <div class="bg-stone-100 h-[1px] w-full"></div>
+  </nav>
+
+  <!-- No-result fallback (hidden by default) -->
+  <div id="no-result" class="hidden pt-40 text-center px-8">
+    <span class="material-symbols-outlined text-6xl text-stone-300 mb-4 block">image_not_supported</span>
+    <h2 class="font-headline text-3xl font-bold mb-3">No results found</h2>
+    <p class="text-on-surface-variant mb-8">Please upload an image or select an example first.</p>
+    <a href="/pages/assessment_en.html"
+       class="inline-block px-6 py-3 bg-black text-white rounded-md font-bold text-sm hover:bg-stone-800 transition-colors">
+      &larr; Go to Assessment
+    </a>
+  </div>
+
+  <!-- Main report (populated by JS) -->
+  <main id="report-main" class="pt-24 pb-20 px-6 md:px-12 max-w-[1920px] mx-auto">
+
+    <!-- Header -->
+    <header class="mb-10 text-center w-full">
+      <h1 class="font-headline text-5xl md:text-7xl font-bold tracking-tight leading-tight mb-6 w-full">
+        Damage Report by Artificial Intelligence
+      </h1>
+    </header>
+
+    <!-- Main content grid -->
+    <div class="flex flex-col lg:flex-row gap-6 items-stretch">
+
+      <!-- Left: Data panel -->
+      <div class="lg:w-3/5 bg-surface-container-low p-6 rounded-xl flex flex-col gap-6">
+
+        <!-- Findings Summary -->
+        <div>
+          <h2 class="font-headline text-xl font-bold tracking-tight mb-4">Findings Summary</h2>
+          <div id="findings-list" class="grid grid-cols-3 gap-3">
+            <!-- Populated by JS -->
+          </div>
+          <p id="no-damage-msg" class="hidden text-sm text-on-surface-variant italic">
+            No damage detected. The vehicle appears to be in good condition.
+          </p>
+        </div>
+
+        <!-- Additional Info -->
+        <div class="border-t border-outline-variant/20 pt-4 mt-auto">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="font-headline text-xl font-bold tracking-tight">Additional Info</h2>
+            <div class="flex items-center gap-2 bg-green-50 px-3 py-1 rounded border border-green-100">
+              <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+              <span class="text-[10px] font-bold uppercase text-green-700">Verified</span>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4 mb-5 text-sm">
+            <div>
+              <span class="text-[10px] font-bold uppercase tracking-widest text-secondary block mb-1">View Angle</span>
+              <span id="stat-view" class="font-headline font-bold">—</span>
+            </div>
+            <div>
+              <span class="text-[10px] font-bold uppercase tracking-widest text-secondary block mb-1">Report Date</span>
+              <span id="stat-date" class="font-headline font-bold">—</span>
+            </div>
+            <div>
+              <span class="text-[10px] font-bold uppercase tracking-widest text-secondary block mb-1">Parts Detected</span>
+              <span id="stat-parts" class="font-headline font-bold">—</span>
+            </div>
+            <div>
+              <span class="text-[10px] font-bold uppercase tracking-widest text-secondary block mb-1">Damage Instances</span>
+              <span id="stat-damages" class="font-headline font-bold">—</span>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="flex flex-col sm:flex-row gap-3 no-print">
+            <button onclick="window.print()"
+              class="flex-1 primary-gradient text-white py-2.5 rounded-md font-bold uppercase tracking-widest text-xs flex items-center justify-center gap-2">
+              <span class="material-symbols-outlined text-sm">download</span> Export Report (PDF)
+            </button>
+            <a href="/pages/assessment_en.html"
+               class="flex-1 border border-primary text-primary py-2.5 rounded-md font-bold uppercase tracking-widest text-xs hover:bg-primary hover:text-white transition-all text-center flex items-center justify-center">
+              New Assessment
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Image panel -->
+      <div class="lg:w-2/5 flex flex-col gap-4">
+
+        <!-- Annotated image -->
+        <div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden flex-1 relative">
+          <div class="absolute top-3 left-3 z-10">
+            <div class="bg-black text-white px-3 py-1 text-[10px] font-bold tracking-[0.2em] uppercase rounded-sm">
+              AI Analysis
+            </div>
+          </div>
+          <img id="annotated-img" src="" alt="Annotated damage" class="w-full h-full object-contain min-h-[260px]"/>
+        </div>
+
+        <!-- Legend -->
+        <div class="flex flex-wrap gap-x-4 gap-y-2 px-1">
+          <div class="flex items-center gap-1.5"><div class="w-3 h-3 rounded-sm dot-dent"></div><span class="text-[10px] font-bold uppercase text-secondary">Dent</span></div>
+          <div class="flex items-center gap-1.5"><div class="w-3 h-3 rounded-sm dot-scratch"></div><span class="text-[10px] font-bold uppercase text-secondary">Scratch</span></div>
+          <div class="flex items-center gap-1.5"><div class="w-3 h-3 rounded-sm dot-crack"></div><span class="text-[10px] font-bold uppercase text-secondary">Crack</span></div>
+          <div class="flex items-center gap-1.5"><div class="w-3 h-3 rounded-sm dot-glass-shatter"></div><span class="text-[10px] font-bold uppercase text-secondary">Glass Shatter</span></div>
+          <div class="flex items-center gap-1.5"><div class="w-3 h-3 rounded-sm dot-lamp-broken"></div><span class="text-[10px] font-bold uppercase text-secondary">Lamp Broken</span></div>
+          <div class="flex items-center gap-1.5"><div class="w-3 h-3 rounded-sm dot-tire-flat"></div><span class="text-[10px] font-bold uppercase text-secondary">Tire Flat</span></div>
+        </div>
+
+        <!-- Original image -->
+        <div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden relative">
+          <div class="absolute top-3 left-3 z-10">
+            <div class="bg-stone-500 text-white px-3 py-1 text-[10px] font-bold tracking-[0.2em] uppercase rounded-sm">
+              Original
+            </div>
+          </div>
+          <img id="original-img" src="" alt="Original image" class="w-full object-contain max-h-64"/>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <footer class="w-full py-10 bg-stone-50 border-t border-stone-200 no-print">
+    <div class="flex justify-between items-center px-6 md:px-12 max-w-[1440px] mx-auto">
+      <p class="font-body text-xs uppercase tracking-widest text-stone-400">© 2026 Car Vision. AI Damage Assessment.</p>
+      <a href="/pages/assessment_en.html" class="text-xs text-stone-400 hover:text-black transition-colors">New Assessment &rarr;</a>
+    </div>
+  </footer>
+
+<script>
+  // ── Severity config ──────────────────────────────────────────────────────
+  const SEV = {
+    critical: { label: 'Critical', border: 'border-red-500',   text: 'text-red-600',   bg: 'bg-red-50'   },
+    medium:   { label: 'Medium',   border: 'border-amber-500', text: 'text-amber-600', bg: 'bg-amber-50' },
+    minor:    { label: 'Minor',    border: 'border-blue-400',  text: 'text-blue-600',  bg: 'bg-blue-50'  },
+  };
+
+  // ── Load result from sessionStorage ─────────────────────────────────────
+  // ?preview — inject mock data so the page renders for design/editing without a real run
+  const MOCK = {
+    annotated_image: "https://placehold.co/800x600/1a1c1d/ffffff?text=Annotated+Output",
+    input_image:     "https://placehold.co/800x600/e2e2e4/474747?text=Original+Image",
+    view_angles: ["side"], missing_parts: ["Back-wheel"],
+    parts: [
+      { name: "Hood",       bbox: [100,80,400,220],  confidence: 0.91,
+        damages: [{ damage_type:"dent",    confidence:0.84, bbox:[120,100,300,200], severity:"critical" },
+                  { damage_type:"scratch", confidence:0.61, bbox:[310,110,390,180], severity:"medium"   }] },
+      { name: "Front-door", bbox: [400,150,700,400], confidence: 0.78, damages: [] },
+      { name: "Fender",     bbox: [90,200,300,380],  confidence: 0.65,
+        damages: [{ damage_type:"crack", confidence:0.45, bbox:[100,220,240,340], severity:"minor" }] },
+    ],
+    full_image_damages: [
+      { damage_type:"lamp broken", confidence:0.88, bbox:[20,300,140,420], severity:"critical" }
+    ],
+  };
+  const isPreview = new URLSearchParams(window.location.search).has('preview');
+  const raw = isPreview ? JSON.stringify(MOCK) : sessionStorage.getItem('minivision_result');
+  if (!raw) {
+    document.getElementById('report-main').classList.add('hidden');
+    document.getElementById('no-result').classList.remove('hidden');
+  } else {
+    renderReport(JSON.parse(raw));
+  }
+
+  function renderReport(data) {
+    // Images
+    document.getElementById('annotated-img').src = data.annotated_image;
+    document.getElementById('original-img').src  = data.input_image;
+
+    // Header
+    const now = new Date();
+    const ts = now.toLocaleString('en-GB', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+    const VIEW_EN = { side: 'Side', front: 'Front', rear: 'Rear', back: 'Rear' };
+    const views = (data.view_angles || []).filter(v => v !== 'unknown')
+      .map(v => VIEW_EN[v.toLowerCase()] || v).join(', ') || 'Unknown';
+
+    // Stats
+    document.getElementById('stat-view').textContent  = views;
+    document.getElementById('stat-date').textContent  = ts;
+    document.getElementById('stat-parts').textContent = (data.parts || []).length;
+
+    // Collect all damages (from parts + full image)
+    const allDamages = [];
+    (data.parts || []).forEach(p => {
+      (p.damages || []).forEach(d => allDamages.push({ ...d, part: p.name }));
+    });
+    (data.full_image_damages || []).forEach(d => allDamages.push({ ...d, part: 'scene' }));
+
+    document.getElementById('stat-damages').textContent = allDamages.length;
+
+    // Sort by severity order
+    const sevOrder = { critical: 0, medium: 1, minor: 2 };
+    allDamages.sort((a, b) => (sevOrder[a.severity] ?? 2) - (sevOrder[b.severity] ?? 2));
+
+    const list = document.getElementById('findings-list');
+    list.innerHTML = '';
+
+    if (allDamages.length === 0) {
+      document.getElementById('no-damage-msg').classList.remove('hidden');
+    } else {
+      const annotatedImg = new Image();
+      annotatedImg.crossOrigin = 'anonymous';
+      annotatedImg.src = data.annotated_image;
+
+      allDamages.forEach((d, i) => {
+        const sev = SEV[d.severity] || SEV.minor;
+        const partLabel = d.part && d.part !== 'scene' ? `<span class="text-secondary text-[10px]"> on ${d.part}</span>` : '';
+        const conf = Math.round(d.confidence * 100);
+        const canvasId = `crop-${i}`;
+
+        list.insertAdjacentHTML('beforeend', `
+          <div class="rounded-lg border border-outline-variant/30 overflow-hidden bg-white flex flex-col">
+            <div class="bg-stone-100 overflow-hidden" style="height:100px;">
+              <canvas id="${canvasId}" class="w-full h-full" style="display:block;"></canvas>
+            </div>
+            <div class="border-l-2 ${sev.border} pl-2 py-2 px-3 flex flex-col gap-0.5 flex-1">
+              <div class="text-[9px] font-bold uppercase tracking-widest ${sev.text}">${sev.label}</div>
+              <div class="text-xs font-bold leading-tight capitalize">${d.damage_type}${partLabel}</div>
+              <div class="text-[10px] text-secondary">Confidence: ${conf}%</div>
+            </div>
+          </div>
+        `);
+      });
+
+      function drawCrops() {
+        allDamages.forEach((d, i) => {
+          const canvas = document.getElementById(`crop-${i}`);
+          if (!canvas || !d.bbox) return;
+          const [x1, y1, x2, y2] = d.bbox;
+          const sw = x2 - x1, sh = y2 - y1;
+          if (sw <= 0 || sh <= 0) return;
+          const pad = Math.round(Math.max(sw, sh) * 0.15);
+          const sx = Math.max(0, x1 - pad), sy = Math.max(0, y1 - pad);
+          const sW = Math.min(annotatedImg.naturalWidth - sx, sw + pad * 2);
+          const sH = Math.min(annotatedImg.naturalHeight - sy, sh + pad * 2);
+          const cW = canvas.parentElement.offsetWidth || 200;
+          const cH = 100;
+          canvas.width  = cW;
+          canvas.height = cH;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(annotatedImg, sx, sy, sW, sH, 0, 0, cW, cH);
+        });
+      }
+
+      if (annotatedImg.complete && annotatedImg.naturalWidth) {
+        drawCrops();
+      } else {
+        annotatedImg.onload = drawCrops;
+      }
+    }
+  }
+</script>
+</body>
+</html>

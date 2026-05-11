@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Car Vision – Image Upload</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          primary: "#000000",
+          surface: "#f9f9fb",
+          "surface-container-lowest": "#ffffff",
+          "on-surface-variant": "#474747",
+          "outline-variant": "#c6c6c6",
+          secondary: "#5a5f66",
+        },
+        fontFamily: {
+          headline: ["Space Grotesk", "sans-serif"],
+          body: ["Inter", "sans-serif"],
+        },
+      },
+    },
+  }
+</script>
+<style>
+  body { background-color: #f9f9fb; font-family: 'Inter', sans-serif; color: #1a1c1d; }
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+
+  .loading-overlay {
+    position: fixed; inset: 0;
+    background: rgba(249,249,251,0.92);
+    backdrop-filter: blur(10px);
+    display: flex; flex-direction: column;
+    justify-content: center; align-items: center;
+    z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.3s;
+  }
+  .loading-overlay.active { opacity: 1; pointer-events: all; }
+
+  /* Spinner */
+  .spinner {
+    width: 48px; height: 48px; border: 3px solid #e2e2e4;
+    border-top-color: #000; border-radius: 50%;
+    animation: spin 0.8s linear infinite; margin-bottom: 20px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Drop zone drag-over */
+  #drop-zone.drag-over {
+    background-color: #f0f0f2;
+    border-color: #000;
+  }
+
+  /* Example card hover */
+  .example-card { position: relative; overflow: hidden; cursor: pointer; }
+  .example-card img { transition: transform 0.3s ease; }
+  .example-card:hover img { transform: scale(1.04); }
+  .example-card .overlay {
+    position: absolute; inset: 0;
+    background: rgba(0,0,0,0.45);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; transition: opacity 0.25s;
+  }
+  .example-card:hover .overlay { opacity: 1; }
+</style>
+</head>
+<body>
+
+<!-- Nav -->
+<div class="flex justify-between items-center px-8 py-6 max-w-[1200px] mx-auto">
+  <a href="/" class="text-sm text-stone-500 hover:text-black transition-colors">&larr; Back to Home</a>
+  <a href="/pages/assessment_ar.html" class="flex items-center gap-2 px-4 py-2 border border-stone-200 rounded-md text-sm font-medium hover:bg-stone-50 transition-colors">
+    <span class="material-symbols-outlined text-base">language</span>
+    <span class="font-headline">AR</span>
+  </a>
+</div>
+
+<main class="max-w-[1100px] mx-auto px-8 pb-20">
+
+  <!-- Header -->
+  <header class="text-center mb-10">
+    <h1 class="font-headline text-5xl md:text-6xl font-bold tracking-tight text-primary mb-4">Vehicle Assessment</h1>
+    <p class="text-on-surface-variant text-lg">Upload a photo of your car or try one of our examples below.</p>
+  </header>
+
+  <!-- Drop Zone -->
+  <div id="drop-zone" class="bg-surface-container-lowest border-2 border-dashed border-outline-variant rounded-xl py-16 px-8 text-center cursor-pointer hover:bg-stone-50 transition-colors mb-4">
+    <div class="flex justify-center mb-4">
+      <span class="material-symbols-outlined text-5xl text-stone-400">cloud_upload</span>
+    </div>
+    <h3 class="font-headline text-lg font-bold mb-2">Drag &amp; drop your image here</h3>
+    <p class="text-sm text-on-surface-variant mb-5">Supports JPG, PNG, WEBP</p>
+    <button onclick="document.getElementById('file-input').click()"
+      class="inline-flex items-center gap-2 px-6 py-2.5 bg-black text-white rounded-md text-sm font-bold hover:bg-stone-800 transition-colors">
+      <span class="material-symbols-outlined text-base">folder_open</span> Browse files
+    </button>
+    <input type="file" id="file-input" accept="image/*" class="hidden"/>
+  </div>
+  <p id="file-name" class="text-center text-sm text-stone-400 mb-10 h-5"></p>
+
+  <!-- Example Gallery -->
+  <section class="mb-12">
+    <h2 class="font-headline text-xs font-bold uppercase tracking-[0.2em] text-secondary mb-5">
+      Or try an example
+    </h2>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+
+      <div class="example-card rounded-xl border border-outline-variant/40 shadow-sm" data-example="1.jpg">
+        <img src="/static/examples/1.jpg" alt="Example 1" class="w-full h-44 object-cover rounded-xl"/>
+        <div class="overlay rounded-xl">
+          <span class="text-white font-headline font-bold text-sm">Analyze &rarr;</span>
+        </div>
+        <div class="px-3 py-2">
+          <p class="font-headline text-xs font-bold">Side Impact</p>
+          <p class="text-[11px] text-secondary">Dent · Tire flat · Crack</p>
+        </div>
+      </div>
+
+      <div class="example-card rounded-xl border border-outline-variant/40 shadow-sm" data-example="2.jpg">
+        <img src="/static/examples/2.jpg" alt="Example 2" class="w-full h-44 object-cover rounded-xl"/>
+        <div class="overlay rounded-xl">
+          <span class="text-white font-headline font-bold text-sm">Analyze &rarr;</span>
+        </div>
+        <div class="px-3 py-2">
+          <p class="font-headline text-xs font-bold">Rear Damage</p>
+          <p class="text-[11px] text-secondary">Lamp broken · Scratch</p>
+        </div>
+      </div>
+
+      <div class="example-card rounded-xl border border-outline-variant/40 shadow-sm" data-example="3.jpg">
+        <img src="/static/examples/3.jpg" alt="Example 3" class="w-full h-44 object-cover rounded-xl"/>
+        <div class="overlay rounded-xl">
+          <span class="text-white font-headline font-bold text-sm">Analyze &rarr;</span>
+        </div>
+        <div class="px-3 py-2">
+          <p class="font-headline text-xs font-bold">Rear Scratches</p>
+          <p class="text-[11px] text-secondary">Multiple scratches</p>
+        </div>
+      </div>
+
+      <div class="example-card rounded-xl border border-outline-variant/40 shadow-sm" data-example="4.jpg">
+        <img src="/static/examples/4.jpg" alt="Example 4" class="w-full h-44 object-cover rounded-xl"/>
+        <div class="overlay rounded-xl">
+          <span class="text-white font-headline font-bold text-sm">Analyze &rarr;</span>
+        </div>
+        <div class="px-3 py-2">
+          <p class="font-headline text-xs font-bold">Front Impact</p>
+          <p class="text-[11px] text-secondary">Scratch · Crack · Lamp</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Photography Guidelines -->
+  <div class="bg-surface-container-lowest border border-outline-variant/30 rounded-xl p-8">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+      <div class="rounded-lg overflow-hidden">
+        <img src="/static/images/clean.png" alt="Example camera angle" class="w-full h-full object-cover"/>
+      </div>
+      <div>
+        <h4 class="text-xs font-bold uppercase tracking-[0.2em] text-secondary mb-6">Photography Guidelines</h4>
+        <div class="space-y-5">
+          <div>
+            <strong class="block text-base font-bold mb-1">Optimal Lighting</strong>
+            <p class="text-sm text-on-surface-variant">Ensure good natural lighting for best detection results.</p>
+          </div>
+          <div>
+            <strong class="block text-base font-bold mb-1">Analysis Angle</strong>
+            <p class="text-sm text-on-surface-variant">Capture the image straight-on or at a slight angle for accurate analysis.</p>
+          </div>
+          <div>
+            <strong class="block text-base font-bold mb-1">Avoid Reflections</strong>
+            <p class="text-sm text-on-surface-variant">Avoid direct glare or strong shadows that might hide damage details.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loading-overlay">
+  <div class="spinner"></div>
+  <div class="font-headline text-2xl font-bold mb-2">Analyzing damage…</div>
+  <p class="text-on-surface-variant text-sm">AI pipeline is running. This may take a few seconds.</p>
+</div>
+
+<script>
+  const overlay   = document.getElementById('loading-overlay');
+  const fileInput = document.getElementById('file-input');
+  const dropZone  = document.getElementById('drop-zone');
+  const fileLabel = document.getElementById('file-name');
+
+  function showLoading() {
+    overlay.classList.add('active');
+  }
+
+  async function runAnalysis(body, isJson = false) {
+    showLoading();
+    try {
+      const opts = { method: 'POST', body };
+      if (isJson) opts.headers = { 'Content-Type': 'application/json' };
+      const resp = await fetch('/api/analyze', opts);
+      if (!resp.ok) {
+        const txt = await resp.text();
+        let msg = `Server error ${resp.status}`;
+        try { msg = JSON.parse(txt).error || msg; } catch {}
+        alert('Error: ' + msg);
+        overlay.classList.remove('active');
+        return;
+      }
+      const result = await resp.json();
+      sessionStorage.setItem('minivision_result', JSON.stringify(result));
+      window.location.href = '/pages/report_en.html';
+    } catch (e) {
+      alert('Error: ' + e.message);
+      overlay.classList.remove('active');
+    }
+  }
+
+  // File input change
+  fileInput.addEventListener('change', () => {
+    const file = fileInput.files[0];
+    if (!file) return;
+    fileLabel.textContent = file.name;
+    const fd = new FormData();
+    fd.append('image', file);
+    runAnalysis(fd);
+  });
+
+  // Drag & drop
+  dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+  dropZone.addEventListener('drop', e => {
+    e.preventDefault();
+    dropZone.classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    if (!file) return;
+    fileLabel.textContent = file.name;
+    const fd = new FormData();
+    fd.append('image', file);
+    runAnalysis(fd);
+  });
+
+  // Example cards
+  document.querySelectorAll('.example-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const example = card.dataset.example;
+      runAnalysis(JSON.stringify({ example }), true);
+    });
+  });
+</script>
+</body>
+</html>
