@@ -1,0 +1,4 @@
+git add Notebook
+git commit -m "01_EDA.ipynb"
+git push origin main
+
