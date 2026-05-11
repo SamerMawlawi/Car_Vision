@@ -22,7 +22,7 @@ The model identifies **what** the damage is (scratch, dent, crack, …) and **wh
 |---|---|
 | **Model** | [YOLOv26 / Ultralytics](https://docs.ultralytics.com/) — Instance Segmentation |
 | **Framework** | PyTorch + TorchVision |
-| **UI** | [Streamlit](https://streamlit.io/) — interactive web interface |
+| **UI** | [Hugging Face]() — interactive web interface |
 | **Image Processing** | OpenCV, Pillow, NumPy, Matplotlib |
 | **Language** | Python 3.11.9 |
 
