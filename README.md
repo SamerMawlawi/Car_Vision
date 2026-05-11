@@ -185,10 +185,7 @@ Download or extract the datasets into the `data/` folder following the structure
 
 ## 👥 Team
 
-*Intelligent Systems Design — University Course Project*
+SamerMawlawi  -  445007760
+ElyasYar  -  445004922
+AzzamAbdullah  -  445002304
 
----
-
-## 📜 License
-
-This project is developed for academic purposes.
