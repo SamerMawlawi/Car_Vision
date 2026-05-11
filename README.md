@@ -20,9 +20,8 @@ The model identifies **what** the damage is (scratch, dent, crack, …) and **wh
 
 | Layer | Technology |
 |---|---|
-| **Model** | [YOLOv8 / Ultralytics](https://docs.ultralytics.com/) — Instance Segmentation |
+| **Model** | [YOLOv26 / Ultralytics](https://docs.ultralytics.com/) — Instance Segmentation |
 | **Framework** | PyTorch + TorchVision |
-| **XAI** | [Captum](https://captum.ai/) (Grad-CAM) for explainability |
 | **UI** | [Streamlit](https://streamlit.io/) — interactive web interface |
 | **Image Processing** | OpenCV, Pillow, NumPy, Matplotlib |
 | **Language** | Python 3.11.9 |
@@ -69,14 +68,13 @@ The model recognizes **29 classes** total — **8 damage types** and **21 car pa
 
 | ID | Label |
 |---:|-------|
-| 0 | Missing part |
-| 1 | Broken part |
-| 2 | Scratch |
-| 3 | Cracked |
-| 4 | Dent |
-| 5 | Flaking |
-| 6 | Paint chip |
-| 7 | Corrosion |
+| 0 | Dent |
+| 1 | scratch|
+| 2 | crack |
+| 3 | glass shatter |
+| 4 | lamp broken |
+| 5 | tire flat |
+
 
 ### Car Parts (Classes 8–28)
 
@@ -102,7 +100,7 @@ The model recognizes **29 classes** total — **8 damage types** and **21 car pa
 
 | Property | Value |
 |---|---|
-| **Total images** | 1,371 |
+| **Total images** | 4000+ |
 | **Annotation format** | YOLO segmentation (polygon `.txt`) |
 | **Sources** | Car damages dataset, Car parts dataset, Car healthy dataset |
 | **Unified split** | `unified_dataset/images/` + `unified_dataset/labels/` |
